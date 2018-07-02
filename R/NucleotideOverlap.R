@@ -87,7 +87,7 @@ NucleotideOverlap <- function(SyntenyObject,
       # Record into Q.Match every hit index that lands in a gene in the query
       ######
       QueryMatrix <- matrix(NA_integer_,
-                            ncol = 5L,
+                            ncol = 6L,
                             nrow = nrow(CurrentHitTable))
       ExtraRows <- QueryMatrix
       HitCounter <- 1L
@@ -99,6 +99,7 @@ NucleotideOverlap <- function(SyntenyObject,
         Q.NucOverLapR <- NA_integer_
         S.NucPositionL <- NA_integer_
         S.NucPositionR <- NA_integer_
+        S.Strand <- NA_integer_
         while (HitCounter <= length(HitWidths)) {
           if (Q.HitEnds[HitCounter] < Q.Start[z1]) {
             # Hit ends before current query gene begins
@@ -110,15 +111,23 @@ NucleotideOverlap <- function(SyntenyObject,
             CurrentGene <- z1
             Q.NucOverLapL <- Q.Start[z1]
             Q.NucOverLapR <- Q.HitEnds[HitCounter]
+            S.Strand <- Strand[HitCounter]
             NewWidth <- Q.NucOverLapR - Q.NucOverLapL + 1L
-            S.NucPositionR <- S.HitEnds[HitCounter]
-            S.NucPositionL <- S.HitEnds[HitCounter] - NewWidth + 1L
+            if (S.Strand == 0L) {
+              S.NucPositionR <- S.HitEnds[HitCounter]
+              S.NucPositionL <- S.HitEnds[HitCounter] - NewWidth + 1L
+            } else {
+              S.NucPositionL <- S.HitStarts[HitCounter]
+              S.NucPositionR <- S.HitStarts[HitCounter] + NewWidth - 1L
+            }
+            
             # Add To Vector!
             QueryMatrix[AddCounter, ] <- c(CurrentGene,
                                            Q.NucOverLapL,
                                            Q.NucOverLapR,
                                            S.NucPositionL,
-                                           S.NucPositionR)
+                                           S.NucPositionR,
+                                           S.Strand)
             QueryMatrix <- Ext.Check(CurrentMatrix = QueryMatrix,
                                      PositionCounter = AddCounter,
                                      AdditionalRows = ExtraRows)
@@ -130,6 +139,7 @@ NucleotideOverlap <- function(SyntenyObject,
             CurrentGene <- z1
             Q.NucOverLapL <- Q.HitStarts[HitCounter]
             Q.NucOverLapR <- Q.HitEnds[HitCounter]
+            S.Strand <- Strand[HitCounter]
             S.NucPositionL <- S.HitStarts[HitCounter]
             S.NucPositionR <- S.HitEnds[HitCounter]
             # Add To Vector!
@@ -137,7 +147,8 @@ NucleotideOverlap <- function(SyntenyObject,
                                            Q.NucOverLapL,
                                            Q.NucOverLapR,
                                            S.NucPositionL,
-                                           S.NucPositionR)
+                                           S.NucPositionR,
+                                           S.Strand)
             QueryMatrix <- Ext.Check(CurrentMatrix = QueryMatrix,
                                      PositionCounter = AddCounter,
                                      AdditionalRows = ExtraRows)
@@ -150,35 +161,50 @@ NucleotideOverlap <- function(SyntenyObject,
             CurrentGene <- z1
             Q.NucOverLapL <- Q.HitStarts[HitCounter]
             Q.NucOverLapR <- Q.Stop[z1]
+            S.Strand <- Strand[HitCounter]
             NewWidth <- Q.NucOverLapR - Q.NucOverLapL + 1L
-            S.NucPositionL <- S.HitStarts[HitCounter]
-            S.NucPositionR <- S.HitStarts[HitCounter] + NewWidth - 1L
+            if (S.Strand == 0L) {
+              S.NucPositionL <- S.HitStarts[HitCounter]
+              S.NucPositionR <- S.HitStarts[HitCounter] + NewWidth - 1L
+            } else {
+              S.NucPositionR <- S.HitEnds[HitCounter]
+              S.NucPositionL <- S.HitEnds[HitCounter] - NewWidth + 1L
+            }
             # Add To Vector!
             QueryMatrix[AddCounter, ] <- c(CurrentGene,
                                            Q.NucOverLapL,
                                            Q.NucOverLapR,
                                            S.NucPositionL,
-                                           S.NucPositionR)
+                                           S.NucPositionR,
+                                           S.Strand)
             QueryMatrix <- Ext.Check(CurrentMatrix = QueryMatrix,
                                      PositionCounter = AddCounter,
                                      AdditionalRows = ExtraRows)
             AddCounter <- AddCounter + 1L
             HitCounter <- HitCounter + 1L
             break
-          } else if (Q.HitStarts[HitCounter] <= Q.Start[z1] &
-                     Q.HitEnds[HitCounter] >= Q.Stop[z1]) {
+          } else if (Q.HitStarts[HitCounter] < Q.Start[z1] &
+                     Q.HitEnds[HitCounter] > Q.Stop[z1]) {
             # Hit eclipses current query gene
             CurrentGene <- z1
             Q.NucOverLapL <- Q.Start[z1]
             Q.NucOverLapR <- Q.Stop[z1]
-            S.NucPositionL <- S.HitStarts[HitCounter] + (Q.HitStarts[HitCounter] - Q.Start[z1]) + 1L
-            S.NucPositionR <- S.HitEnds[HitCounter] - (Q.HitEnds[HitCounter] - Q.Stop[z1]) - 1L
+            S.Strand <- Strand[HitCounter]
+            NewWidth <- Q.NucOverLapR - Q.NucOverLapL + 1L
+            if (S.Strand == 0L) {
+              S.NucPositionL <- S.HitStarts[HitCounter] + (Q.HitStarts[HitCounter] - Q.Start[z1] + 1L)
+              S.NucPositionR <- S.NucPositionL + NewWidth - 1L
+            } else {
+              S.NucPositionR <- S.HitEnds[HitCounter] - (Q.HitStarts[HitCounter] - Q.Start[z1] + 1L)
+              S.NucPositionL <- S.NucPositionR - NewWidth + 1L
+            }
             # Add To Vector!
             QueryMatrix[AddCounter, ] <- c(CurrentGene,
                                            Q.NucOverLapL,
                                            Q.NucOverLapR,
                                            S.NucPositionL,
-                                           S.NucPositionR)
+                                           S.NucPositionR,
+                                           S.Strand)
             QueryMatrix <- Ext.Check(CurrentMatrix = QueryMatrix,
                                      PositionCounter = AddCounter,
                                      AdditionalRows = ExtraRows)
