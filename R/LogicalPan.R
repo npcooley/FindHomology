@@ -62,7 +62,6 @@ LogicalPan <- function(HomologList,
                      AdditionalMatrix)
   PanMatrix <- PanMatrix[, order(colSums(PanMatrix),
                                  decreasing = TRUE)]
-  PanMatrix <- t(PanMatrix)
   if (Verbose == TRUE) {
     cat("\n")
     TimeStop <- Sys.time()
@@ -70,8 +69,9 @@ LogicalPan <- function(HomologList,
     print(TotalTime)
   }
   if (Plot == TRUE) {
-    image(PanMatrix,
-          col = c("white", "blue"))
+    image(t(PanMatrix),
+          col = c("white", "blue"),
+          main = "Presence / Absence")
   }
   return(PanMatrix)
 }
