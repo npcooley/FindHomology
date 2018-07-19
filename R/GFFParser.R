@@ -9,7 +9,7 @@
 GFFParser <- function(GFFAddress,
                       Verbose = FALSE) {
   GeneCalls <- vector("list",
-                      length = length(x))
+                      length = length(GFFAddress))
   if (Verbose == TRUE) {
     TimeStart <- Sys.time()
     pBar <- txtProgressBar(style = 1L)
