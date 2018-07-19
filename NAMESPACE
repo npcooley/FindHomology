@@ -2,4 +2,6 @@
 
 export(Catalog)
 export(CoreAligner)
+export(GFFParser)
+export(LogicalPan)
 export(NucleotideOverlap)

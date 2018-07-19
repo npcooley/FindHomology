@@ -2,20 +2,17 @@
 % Please edit documentation in R/HomologyParsing.R
 \name{Catalog}
 \alias{Catalog}
-\title{A function for determining nucleotide overlap that links genes.}
+\title{A function for doing simple network analysis on sets of homologs}
 \usage{
 Catalog(ResultMatrix, Verbose = FALSE)
 }
 \arguments{
-\item{ResultMatrix}{A matrix where with the upper triangle containing matrices of genes linked by nucleotide overlap}
+\item{ResultMatrix}{a matrix of lists, the upper triange of which is filled with matrices of putative homologs}
 }
 \description{
-A function for determining nucleotide overlap that links genes.
+A function for doing simple network analysis on sets of homologs
 }
 \examples{
 Catalog()
 }
-\keyword{Core}
-\keyword{Genome}
-\keyword{Homology,}
-\keyword{Orthology,}
+\keyword{Homology}
