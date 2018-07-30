@@ -2,6 +2,7 @@
 #' @param ListOfSets A list of matrices
 #' @param PATH A character string identifying a sqlite database
 #' @param GeneCalls A list of dataframes, one for each genome, with named columns "Start", "Stop", and "Strand"
+#' @param IDs A vector of characters indicating the identifiers for which genomes to select
 #' @keywords Core Genome
 #' @export
 #' @examples
@@ -10,6 +11,7 @@
 CoreAligner <- function(ListOfSets,
                         PATH,
                         GeneCalls,
+                        IDs,
                         Verbose = FALSE) {
   if (Verbose == TRUE) {
     TimeStart <- Sys.time()
@@ -21,7 +23,7 @@ CoreAligner <- function(ListOfSets,
   for (i in seq_along(GeneCalls)) {
     Genomes[[i]] <- SearchDB(dbFile = PATH,
                              tblName = "Seqs",
-                             identifier = as.character(i),
+                             identifier = IDs[i],
                              type = "XStringSet",
                              nameBy = "identifier",
                              limit = 1L,
